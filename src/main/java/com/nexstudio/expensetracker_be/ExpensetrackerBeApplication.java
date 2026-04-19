@@ -1,11 +1,14 @@
 package com.nexstudio.expensetracker_be;
 
+import com.nexstudio.expensetracker_be.properties.JwtProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
 @SpringBootApplication
+@ConfigurationPropertiesScan
 public class ExpensetrackerBeApplication {
-
 	public static void main(String[] args) {
 		SpringApplication.run(ExpensetrackerBeApplication.class, args);
 	}
