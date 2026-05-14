@@ -2,16 +2,19 @@ package com.nexstudio.expensetracker_be.repository.impl;
 
 import com.nexstudio.expensetracker_be.constants.Constants;
 import com.nexstudio.expensetracker_be.entity.UserEntity;
+import com.nexstudio.expensetracker_be.enums.UserRole;
 import com.nexstudio.expensetracker_be.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Repository
 @RequiredArgsConstructor
@@ -23,7 +26,7 @@ public class UserRepositoryImpl implements UserRepository {
     public void saveUser(UserEntity user) {
         LocalDateTime now = LocalDateTime.now();
 
-        String sql = "INSERT INTO " + Constants.DEFAULT_SCHEMA + Constants.USER_TABLE +
+        String sql = "INSERT INTO " + Constants.USER_TABLE +
                 "(id, username, password, email, role, status, inbound_address, created_at, updated_at)"
                 + Constants.VALUES_SQL +
                 "(:id, :username, :password, :email, :role, :status, :inbound_address, :created_at, :updated_at)";
@@ -33,7 +36,7 @@ public class UserRepositoryImpl implements UserRepository {
                 .addValue("username", user.getUsername())
                 .addValue("password", user.getPassword())
                 .addValue("email", user.getEmail())
-                .addValue("role", user.getRole())
+                .addValue("role", user.getRole() == UserRole.USER ? "USER" : "ADMIN")
                 .addValue("status", user.getStatus())
                 .addValue("inbound_address", user.getInboundAddress())
                 .addValue("created_at", Timestamp.valueOf(now))
@@ -44,6 +47,34 @@ public class UserRepositoryImpl implements UserRepository {
             log.info("==== Sql save user: {} ====", sql);
         } catch (DataAccessException e) {
             log.error("=== Failed to save user with id: {} ===", user.getId());
+            log.error(e.getMessage());
+            throw e;
+        }
+    }
+
+    @Override
+    public UserEntity getUser(String username){
+        String sql = "SELECT id, username, email, role, status, inbound_address " +
+                "FROM " + Constants.USER_TABLE +
+                "WHERE username = :username";
+
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("username", username);
+
+        try {
+            return namedParameterJdbcTemplate.queryForObject(sql, params, (rs, rowNum) -> UserEntity.builder()
+                    .id(rs.getString("id"))
+                    .username(rs.getString("username"))
+                    .email(rs.getString("email"))
+                    .role(Objects.equals(rs.getString("role"), UserRole.ADMIN.getDisplayName()) ? UserRole.ADMIN : UserRole.USER)
+                    .status(rs.getString("status"))
+                    .inboundAddress(rs.getString("inbound_address"))
+                    .build());
+        } catch (EmptyResultDataAccessException e) {
+            log.info("=== User with username: {} not found ===", username);
+            return null;
+        } catch (DataAccessException e) {
+            log.error("=== Failed to get user with username: {} ===", username);
             log.error(e.getMessage());
             throw e;
         }

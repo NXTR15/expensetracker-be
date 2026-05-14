@@ -20,12 +20,13 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 public class UserEntity implements UserDetails {
-    private UUID id;
+    private String id;
     private String username;
     private String email;
     private UserRole role;
     private String inboundAddress;
     private String status;
+    private String password;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -34,7 +35,7 @@ public class UserEntity implements UserDetails {
 
     @Override
     public String getPassword() {
-        return "";
+        return password;
     }
 
     @Override

@@ -1,7 +1,8 @@
 package com.nexstudio.expensetracker_be.enums;
 
 public enum UserRole {
-    ROLE_USER("USER");
+    USER("USER"),
+    ADMIN("ADMIN");
 
     private String displayName;
 
