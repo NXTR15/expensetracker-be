@@ -40,6 +40,7 @@ public class AuthenticationConfig {
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider(userDetailsService());
         authenticationProvider.setPasswordEncoder(passwordEncoder());
+        authenticationProvider.setHideUserNotFoundExceptions(false);
         return authenticationProvider;
     }
 
