@@ -5,6 +5,7 @@ import com.nexstudio.expensetracker_be.dto.response.AuthenticationResponse;
 import com.nexstudio.expensetracker_be.entity.UserEntity;
 import com.nexstudio.expensetracker_be.service.AuthenticationService;
 import com.nexstudio.expensetracker_be.util.JwtProvider;
+import com.nexstudio.expensetracker_be.util.ValidationUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,9 +19,12 @@ import org.springframework.stereotype.Service;
 public class AuthenticationServiceImpl implements AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final JwtProvider jwtProvider;
+    private final ValidationUtils validationUtils;
 
     @Override
     public AuthenticationResponse login(AuthenticationRequest request) {
+        validationUtils.validateLoginRequest(request);
+
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getUsernameOrEmail().toLowerCase(),

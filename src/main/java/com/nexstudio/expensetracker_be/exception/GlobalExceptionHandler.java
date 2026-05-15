@@ -52,6 +52,17 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException exception) {
+        log.warn("Invalid request", exception);
+
+        return ResponseUtil.buildErrorResponse(
+                HttpStatus.BAD_REQUEST,
+                ErrorConstants.AUTHENTICATION_ERROR,
+                List.of(exception.getMessage())
+        );
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException exception) {
         log.warn("Validation failed", exception);
