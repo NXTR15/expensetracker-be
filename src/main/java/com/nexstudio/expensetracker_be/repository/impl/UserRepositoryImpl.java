@@ -15,6 +15,7 @@ import org.springframework.stereotype.Repository;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.UUID;
 
 @Repository
 @RequiredArgsConstructor
@@ -32,7 +33,7 @@ public class UserRepositoryImpl implements UserRepository {
                 "(:id, :username, :password, :email, :role, :status, :inbound_address, :created_at, :updated_at)";
 
         MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue("id", user.getId())
+                .addValue("id", UUID.randomUUID().toString().replace("-", ""))
                 .addValue("username", user.getUsername())
                 .addValue("password", user.getPassword())
                 .addValue("email", user.getEmail())
@@ -54,7 +55,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public UserEntity getUser(String username){
-        String sql = "SELECT id, username, email, role, status, inbound_address " +
+        String sql = "SELECT id, username, password, email, role, status, inbound_address " +
                 "FROM " + Constants.USER_TABLE +
                 "WHERE username = :username";
 
@@ -62,9 +63,12 @@ public class UserRepositoryImpl implements UserRepository {
                 .addValue("username", username);
 
         try {
+            log.info("==== Sql get user by username: {} ====", sql);
+
             return namedParameterJdbcTemplate.queryForObject(sql, params, (rs, rowNum) -> UserEntity.builder()
                     .id(rs.getString("id"))
                     .username(rs.getString("username"))
+                    .password(rs.getString("password"))
                     .email(rs.getString("email"))
                     .role(Objects.equals(rs.getString("role"), UserRole.ADMIN.getDisplayName()) ? UserRole.ADMIN : UserRole.USER)
                     .status(rs.getString("status"))
@@ -75,6 +79,37 @@ public class UserRepositoryImpl implements UserRepository {
             return null;
         } catch (DataAccessException e) {
             log.error("=== Failed to get user with username: {} ===", username);
+            log.error(e.getMessage());
+            throw e;
+        }
+    }
+
+    @Override
+    public UserEntity getUserByUsernameOrEmail(String usernameOrEmail) {
+        String sql = "SELECT id, username, password, email, role, status, inbound_address " +
+                "FROM " + Constants.USER_TABLE +
+                "WHERE username = :usernameOrEmail OR email = :usernameOrEmail";
+
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("usernameOrEmail", usernameOrEmail);
+
+        try {
+            log.info("==== Sql get user by username or email user: {} ====", sql);
+
+            return namedParameterJdbcTemplate.queryForObject(sql, params, (rs, rowNum) -> UserEntity.builder()
+                    .id(rs.getString("id"))
+                    .username(rs.getString("username"))
+                    .password(rs.getString("password"))
+                    .email(rs.getString("email"))
+                    .role(Objects.equals(rs.getString("role"), UserRole.ADMIN.getDisplayName()) ? UserRole.ADMIN : UserRole.USER)
+                    .status(rs.getString("status"))
+                    .inboundAddress(rs.getString("inbound_address"))
+                    .build());
+        } catch (EmptyResultDataAccessException e) {
+            log.info("=== User with username/email: {} not found ===", usernameOrEmail);
+            return null;
+        } catch (DataAccessException e) {
+            log.error("=== Failed to get user with username/email: {} ===", usernameOrEmail);
             log.error(e.getMessage());
             throw e;
         }

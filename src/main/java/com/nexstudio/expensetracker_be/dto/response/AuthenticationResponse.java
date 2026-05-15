@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class AuthenticationResponse {
-    private Long id;
+    private String id;
     private String username;
     private String role;
     private String token;

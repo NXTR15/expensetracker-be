@@ -55,6 +55,14 @@ public class JwtProvider {
         }
     }
 
+    public String getUsernameFromToken(String token) {
+        return Jwts.parser()
+                .verifyWith(getSignInKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .getSubject();
+    }
 
     private SecretKey getSignInKey()
     {

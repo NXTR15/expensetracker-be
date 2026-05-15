@@ -23,7 +23,7 @@ public class AdminSeeder implements CommandLineRunner {
 
     @Value("${extracker.admin.username}")
     private String adminUsername;
-    @Value("${extracker.admin.username}")
+    @Value("${extracker.admin.password}")
     private String adminPassword;
 
     @Override
@@ -33,7 +33,6 @@ public class AdminSeeder implements CommandLineRunner {
         if(user == null){
             userRepository.saveUser(
                     UserEntity.builder()
-                            .id(UUID.randomUUID().toString())
                             .username(adminUsername)
                             .password(passwordEncoder.encode(adminPassword))
                             .email(null)
