@@ -22,6 +22,7 @@ import java.util.UUID;
 public class UserEntity implements UserDetails {
     private String id;
     private String username;
+    private String name;
     private String email;
     private UserRole role;
     private String inboundAddress;

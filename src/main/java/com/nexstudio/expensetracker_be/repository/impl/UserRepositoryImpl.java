@@ -28,13 +28,14 @@ public class UserRepositoryImpl implements UserRepository {
         LocalDateTime now = LocalDateTime.now();
 
         String sql = "INSERT INTO " + Constants.USER_TABLE +
-                "(id, username, password, email, role, status, inbound_address, created_at, updated_at)"
+                "(id, username, name, password, email, role, status, inbound_address, created_at, updated_at)"
                 + Constants.VALUES_SQL +
-                "(:id, :username, :password, :email, :role, :status, :inbound_address, :created_at, :updated_at)";
+                "(:id, :username, :name, :password, :email, :role, :status, :inbound_address, :created_at, :updated_at)";
 
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("id", UUID.randomUUID().toString().replace("-", ""))
                 .addValue("username", user.getUsername())
+                .addValue("name", user.getName())
                 .addValue("password", user.getPassword())
                 .addValue("email", user.getEmail())
                 .addValue("role", user.getRole() == UserRole.USER ? "USER" : "ADMIN")
@@ -55,7 +56,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public UserEntity getUser(String username){
-        String sql = "SELECT id, username, password, email, role, status, inbound_address " +
+        String sql = "SELECT id, username, name, password, email, role, status, inbound_address " +
                 "FROM " + Constants.USER_TABLE +
                 "WHERE username = :username";
 
@@ -86,7 +87,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public UserEntity getUserByUsernameOrEmail(String usernameOrEmail) {
-        String sql = "SELECT id, username, password, email, role, status, inbound_address " +
+        String sql = "SELECT id, username, name, password, email, role, status, inbound_address " +
                 "FROM " + Constants.USER_TABLE +
                 "WHERE username = :usernameOrEmail OR email = :usernameOrEmail";
 
@@ -99,6 +100,7 @@ public class UserRepositoryImpl implements UserRepository {
             return namedParameterJdbcTemplate.queryForObject(sql, params, (rs, rowNum) -> UserEntity.builder()
                     .id(rs.getString("id"))
                     .username(rs.getString("username"))
+                    .name(rs.getString("name"))
                     .password(rs.getString("password"))
                     .email(rs.getString("email"))
                     .role(Objects.equals(rs.getString("role"), UserRole.ADMIN.getDisplayName()) ? UserRole.ADMIN : UserRole.USER)
