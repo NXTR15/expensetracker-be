@@ -1,9 +1,9 @@
-package com.nexstudio.expensetracker_be.repository.impl;
+package com.nexstudio.expensetracker_be.repository.main.impl;
 
 import com.nexstudio.expensetracker_be.constants.Constants;
 import com.nexstudio.expensetracker_be.entity.UserEntity;
 import com.nexstudio.expensetracker_be.enums.UserRole;
-import com.nexstudio.expensetracker_be.repository.UserRepository;
+import com.nexstudio.expensetracker_be.repository.main.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;

@@ -1,4 +1,4 @@
-package com.nexstudio.expensetracker_be.repository;
+package com.nexstudio.expensetracker_be.repository.main;
 
 import com.nexstudio.expensetracker_be.entity.UserEntity;
 

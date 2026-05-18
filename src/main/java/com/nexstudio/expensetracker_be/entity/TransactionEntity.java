@@ -1,4 +1,4 @@
-package com.nexstudio.expensetracker_be.dto.response;
+package com.nexstudio.expensetracker_be.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,13 +12,15 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class TransactionResponse {
-    private String username;
-    private String name;
-    private String category;
+public class TransactionEntity {
+    private String id;
+    private String userId;
+    private String categoryId;
     private BigDecimal amount;
     private String description;
     private LocalDateTime transactionDate;
     private String paymentMethod;
     private String source;
+    private String createdAt;
+    private String updatedAt;
 }

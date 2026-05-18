@@ -4,7 +4,7 @@ import com.nexstudio.expensetracker_be.constants.Constants;
 import com.nexstudio.expensetracker_be.dto.request.RegisterRequest;
 import com.nexstudio.expensetracker_be.entity.UserEntity;
 import com.nexstudio.expensetracker_be.enums.UserRole;
-import com.nexstudio.expensetracker_be.repository.UserRepository;
+import com.nexstudio.expensetracker_be.repository.main.UserRepository;
 import com.nexstudio.expensetracker_be.service.UserService;
 import com.nexstudio.expensetracker_be.util.ValidationUtils;
 import lombok.RequiredArgsConstructor;

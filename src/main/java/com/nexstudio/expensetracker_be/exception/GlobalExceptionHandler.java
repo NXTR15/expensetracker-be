@@ -63,6 +63,17 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(UsernameValidationException.class)
+    public ResponseEntity<ErrorResponse> handleUsernameValidationException(UsernameValidationException exception) {
+        log.warn("Username validation failed", exception);
+
+        return ResponseUtil.buildErrorResponse(
+                HttpStatus.BAD_REQUEST,
+                ErrorConstants.USERNAME_VALIDATION_ERROR,
+                List.of(exception.getMessage())
+        );
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException exception) {
         log.warn("Validation failed", exception);

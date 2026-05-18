@@ -2,12 +2,16 @@ package com.nexstudio.expensetracker_be.util;
 
 import com.nexstudio.expensetracker_be.dto.request.AuthenticationRequest;
 import com.nexstudio.expensetracker_be.dto.request.RegisterRequest;
+import com.nexstudio.expensetracker_be.exception.UsernameValidationException;
+import com.nexstudio.expensetracker_be.repository.main.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
 public class ValidationUtils {
+    private final UserRepository userRepository;
+
     public void validateLoginRequest(AuthenticationRequest request) {
         validateUsername(request.getUsernameOrEmail());
         validatePassword(request.getPassword());
@@ -16,6 +20,10 @@ public class ValidationUtils {
     public void validateRegisterRequest(RegisterRequest request) {
         validateUsername(request.getUsername());
         validatePassword(request.getPassword());
+
+        if (userRepository.getUser(request.getUsername().toLowerCase()) != null) {
+            throw new UsernameValidationException("Username already exists");
+        }
     }
 
     private void validateUsername(String username) {

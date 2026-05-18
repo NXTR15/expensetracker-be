@@ -2,7 +2,7 @@ package com.nexstudio.expensetracker_be.config;
 
 import lombok.RequiredArgsConstructor;
 import com.nexstudio.expensetracker_be.entity.UserEntity;
-import com.nexstudio.expensetracker_be.repository.UserRepository;
+import com.nexstudio.expensetracker_be.repository.main.UserRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;

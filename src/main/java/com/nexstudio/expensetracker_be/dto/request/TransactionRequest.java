@@ -15,8 +15,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class TransactionRequest {
-    private String userId;
-    private String categoryId;
+    private String username;
+    private String categoryName;
     private BigDecimal amount;
     private String description;
     private LocalDateTime trxDate;
