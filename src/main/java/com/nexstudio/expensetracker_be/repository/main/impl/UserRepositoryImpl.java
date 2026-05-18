@@ -58,10 +58,11 @@ public class UserRepositoryImpl implements UserRepository {
     public UserEntity getUser(String username){
         String sql = "SELECT id, username, name, password, email, role, status, inbound_address " +
                 "FROM " + Constants.USER_TABLE +
-                "WHERE username = :username";
+                "WHERE username = :username AND status = :status";
 
         MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue("username", username);
+                .addValue("username", username)
+                .addValue("status", Constants.ACTIVE);
 
         try {
             log.info("==== Sql get user by username: {} ====", sql);
@@ -89,10 +90,11 @@ public class UserRepositoryImpl implements UserRepository {
     public UserEntity getUserByUsernameOrEmail(String usernameOrEmail) {
         String sql = "SELECT id, username, name, password, email, role, status, inbound_address " +
                 "FROM " + Constants.USER_TABLE +
-                "WHERE username = :usernameOrEmail OR email = :usernameOrEmail";
+                "WHERE (username = :usernameOrEmail OR email = :usernameOrEmail) AND status = :status";
 
         MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue("usernameOrEmail", usernameOrEmail);
+                .addValue("usernameOrEmail", usernameOrEmail)
+                .addValue("status", Constants.ACTIVE);
 
         try {
             log.info("==== Sql get user by username or email user: {} ====", sql);
