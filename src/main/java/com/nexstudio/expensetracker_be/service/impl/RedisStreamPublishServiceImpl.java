@@ -14,6 +14,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -49,7 +50,7 @@ public class RedisStreamPublishServiceImpl implements RedisStreamPublishService 
     }
 
     private @NonNull MapRecord<String, String, String> getEntries(TransactionChangedEvent event) {
-        Map<String, String> redisFields = Map.of(
+        Map<String, String> redisFields = new java.util.HashMap<>(Map.of(
                 "trxId", event.trxId(),
                 "eventType", event.eventType(),
                 "userId", event.userId(),
@@ -60,7 +61,9 @@ public class RedisStreamPublishServiceImpl implements RedisStreamPublishService 
                 "transactionDate", event.transactionDate().toString(),
                 "paymentMethod", event.paymentMethod(),
                 "source", event.source()
-        );
+        ));
+
+        redisFields.put("eventId", UUID.randomUUID().toString().replace("-", ""));
 
         MapRecord<String, String, String> record = MapRecord.create(
                 redisStreamProperties.getKey(),
