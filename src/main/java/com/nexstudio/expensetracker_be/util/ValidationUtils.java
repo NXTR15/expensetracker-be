@@ -33,14 +33,16 @@ public class ValidationUtils {
 
     public void validateTransactionRequest(TransactionRequest request) {
         String username = request != null ? request.getUsername() : null;
-        String categoryName = request != null ? request.getCategoryName() : null;
+        String categoryName = request != null ? request.getCategoryCode() : null;
         BigDecimal amount = request != null ? request.getAmount() : null;
+        String trxDate = request != null ? request.getTrxDate() : null;
         PaymentMethod paymentMethod = request != null ? request.getPaymentMethod() : null;
         Source source = request != null ? request.getSource() : null;
 
         validateTransactionUsername(username);
         validateCategoryName(categoryName);
         validateAmount(amount);
+        validateTrxDate(trxDate);
         validatePaymentAndSource(paymentMethod, source);
     }
 
@@ -80,6 +82,12 @@ public class ValidationUtils {
     private void validateAmount(BigDecimal amount) {
         if (amount == null) {
             throw new IllegalArgumentException("trx.error.002");
+        }
+    }
+
+    private void validateTrxDate(String trxDate) {
+        if (trxDate == null || trxDate.isBlank()) {
+            throw new IllegalArgumentException("trx.error.004");
         }
     }
 

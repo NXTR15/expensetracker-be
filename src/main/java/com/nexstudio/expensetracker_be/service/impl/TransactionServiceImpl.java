@@ -13,6 +13,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -25,14 +30,17 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     public TransactionResponse saveTransaction(TransactionRequest request) {
         validationUtils.validateTransactionRequest(request);
+        LocalDateTime transactionDate = parseTransactionDate(request.getTrxDate());
 
         UserEntity user = userRepository.getUser(request.getUsername().toLowerCase());
         if (user == null) {
-            throw new IllegalArgumentException("trx.error.001");
+            log.error("User not found!");
+            throw new IllegalArgumentException("usr.error.001");
         }
 
-        String categoryId = categoryRepository.getCategoryIdByName(request.getCategoryName());
+        String categoryId = categoryRepository.getCategoryIdByCode(request.getCategoryCode());
         if (categoryId == null) {
+            log.error("Category not found!");
             throw new IllegalArgumentException("cat.error.001");
         }
 
@@ -41,7 +49,7 @@ public class TransactionServiceImpl implements TransactionService {
                 .categoryId(categoryId)
                 .amount(request.getAmount())
                 .description(request.getDescription())
-                .transactionDate(request.getTrxDate())
+                .transactionDate(transactionDate)
                 .paymentMethod(request.getPaymentMethod().name())
                 .source(request.getSource().name())
                 .build();
@@ -52,12 +60,24 @@ public class TransactionServiceImpl implements TransactionService {
         return TransactionResponse.builder()
                 .username(user.getUsername())
                 .name(user.getName())
-                .category(request.getCategoryName())
+                .category(request.getCategoryCode())
                 .amount(request.getAmount())
                 .description(request.getDescription())
-                .transactionDate(request.getTrxDate())
+                .transactionDate(transactionDate)
                 .paymentMethod(request.getPaymentMethod().name())
                 .source(request.getSource().name())
                 .build();
+    }
+
+    private LocalDateTime parseTransactionDate(String trxDate) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+        try {
+            LocalDate parsedDate = LocalDate.parse(trxDate, formatter);
+            return parsedDate.atTime(23, 59, 29);
+        } catch (DateTimeParseException exception) {
+            log.error("Failed to parse date : {}", trxDate);
+            throw new IllegalArgumentException("Failed parse date!", exception);
+        }
     }
 }

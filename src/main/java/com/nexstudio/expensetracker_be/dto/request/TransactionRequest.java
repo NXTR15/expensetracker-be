@@ -8,7 +8,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
@@ -16,10 +15,10 @@ import java.time.LocalDateTime;
 @Builder
 public class TransactionRequest {
     private String username;
-    private String categoryName;
+    private String categoryCode;
     private BigDecimal amount;
     private String description;
-    private LocalDateTime trxDate;
+    private String trxDate;
     private PaymentMethod paymentMethod;
     private Source source;
 }

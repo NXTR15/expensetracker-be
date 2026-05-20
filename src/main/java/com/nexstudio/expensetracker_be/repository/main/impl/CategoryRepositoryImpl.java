@@ -17,22 +17,22 @@ public class CategoryRepositoryImpl implements CategoryRepository {
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     @Override
-    public String getCategoryIdByName(String categoryName) {
+    public String getCategoryIdByCode(String categoryCode) {
         String sql = "SELECT id FROM " + Constants.CATEGORY_TABLE +
-                "WHERE LOWER(code) = LOWER(:name) AND status = :status";
+                "WHERE LOWER(code) = LOWER(:code) AND status = :status";
 
         MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue("name", categoryName)
+                .addValue("code", categoryCode)
                 .addValue("status", Constants.ACTIVE);
 
         try {
             log.info("==== Sql get category by name: {} ====", sql);
             return namedParameterJdbcTemplate.queryForObject(sql, params, String.class);
         } catch (EmptyResultDataAccessException e) {
-            log.info("=== Category with name: {} not found ===", categoryName);
+            log.info("=== Category with name: {} not found ===", categoryCode);
             return null;
         } catch (DataAccessException e) {
-            log.error("=== Failed to get category with name: {} ===", categoryName);
+            log.error("=== Failed to get category with name: {} ===", categoryCode);
             log.error(e.getMessage());
             throw e;
         }
