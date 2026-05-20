@@ -42,6 +42,12 @@ public class RedisStreamPublishServiceImpl implements RedisStreamPublishService 
 
             RecordId recordId = redisTemplate.opsForStream().add(record);
 
+            redisTemplate.opsForStream().trim(
+                    redisStreamProperties.getKey(),
+                    100,
+                    true
+            );
+
             log.info("Successfully published Redis Stream event. stream={}, recordId={}, transactionId={}",
                     redisStreamProperties.getKey(), recordId, event.trxId());
 
