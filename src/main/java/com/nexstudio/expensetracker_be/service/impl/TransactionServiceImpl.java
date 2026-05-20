@@ -16,12 +16,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -34,6 +36,7 @@ public class TransactionServiceImpl implements TransactionService {
     private final ApplicationEventPublisher applicationEventPublisher;
 
     @Override
+    @Transactional
     public TransactionResponse saveTransaction(TransactionRequest request) {
         validationUtils.validateTransactionRequest(request);
         LocalDateTime transactionDate = parseTransactionDate(request.getTrxDate());
@@ -51,6 +54,7 @@ public class TransactionServiceImpl implements TransactionService {
         }
 
         TransactionEntity transaction = TransactionEntity.builder()
+                .id(UUID.randomUUID().toString().replace("-", ""))
                 .userId(user.getId())
                 .categoryCode(request.getCategoryCode())
                 .transactionType(categoryData.getType())
@@ -68,6 +72,7 @@ public class TransactionServiceImpl implements TransactionService {
 
         applicationEventPublisher.publishEvent(
                 new TransactionChangedEvent(
+                        transactionId,
                         Constants.TRX_CREATED,
                         user.getId(),
                         categoryData.getName(),

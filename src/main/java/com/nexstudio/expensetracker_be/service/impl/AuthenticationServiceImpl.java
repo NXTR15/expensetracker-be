@@ -12,6 +12,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -22,6 +23,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final ValidationUtils validationUtils;
 
     @Override
+    @Transactional
     public AuthenticationResponse login(AuthenticationRequest request) {
         validationUtils.validateLoginRequest(request);
 

@@ -22,7 +22,6 @@ public class TransactionRepositoryImpl implements TransactionRepository {
     @Override
     public String saveTransaction(TransactionEntity entity) {
         LocalDateTime now = LocalDateTime.now();
-        String id = UUID.randomUUID().toString().replace("-", "");
 
         String sql = "INSERT INTO " + Constants.TRANSACTION_TABLE +
                 "(id, user_id, category_code, amount, description, transaction_date, payment_method, source, transaction_type, created_at, updated_at)"
@@ -30,7 +29,7 @@ public class TransactionRepositoryImpl implements TransactionRepository {
                 "(:id, :user_id, :category_code, :amount, :description, :transaction_date, :payment_method, :source, :transaction_type, :created_at, :updated_at)";
 
         MapSqlParameterSource params = new MapSqlParameterSource()
-                .addValue("id", id)
+                .addValue("id", entity.getId())
                 .addValue("user_id", entity.getUserId())
                 .addValue("category_code", entity.getCategoryCode())
                 .addValue("amount", entity.getAmount())
@@ -46,9 +45,9 @@ public class TransactionRepositoryImpl implements TransactionRepository {
             namedParameterJdbcTemplate.update(sql, params);
             log.info("==== Sql save transaction: {} ====", sql);
 
-            return id;
+            return entity.getId();
         } catch (DataAccessException e) {
-            log.error("=== Failed to save transaction with id: {} ===", id);
+            log.error("=== Failed to save transaction with id: {} ===", entity.getId());
             log.error(e.getMessage());
             throw e;
         }

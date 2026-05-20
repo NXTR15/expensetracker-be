@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public record TransactionChangedEvent(
+        String trxId,
         String eventType,
         String userId,
         String categoryName,
