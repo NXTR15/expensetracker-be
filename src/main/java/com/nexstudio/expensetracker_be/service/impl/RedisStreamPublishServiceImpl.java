@@ -7,6 +7,7 @@ import com.nexstudio.expensetracker_be.properties.RedisStreamProperties;
 import com.nexstudio.expensetracker_be.service.RedisStreamPublishService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
 import org.springframework.data.redis.connection.stream.MapRecord;
 import org.springframework.data.redis.connection.stream.RecordId;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -25,18 +26,9 @@ public class RedisStreamPublishServiceImpl implements RedisStreamPublishService 
     @Override
     public void publish(TransactionChangedEvent event) {
         try {
-            String jsonPayload = objectMapper.writeValueAsString(event);
+            log.info("Received Json Payload : {}", event);
 
-            log.info("Created Json Payload : {}", jsonPayload);
-
-            Map<String, String> redisFields = Map.of(
-                    "payload", jsonPayload
-            );
-
-            MapRecord<String, String, String> record = MapRecord.create(
-                    redisStreamProperties.getKey(),
-                    redisFields
-            );
+            MapRecord<String, String, String> record = getEntries(event);
 
             log.info("Sending payload to redis stream.....");
 
@@ -51,10 +43,29 @@ public class RedisStreamPublishServiceImpl implements RedisStreamPublishService 
             log.info("Successfully published Redis Stream event. stream={}, recordId={}, transactionId={}",
                     redisStreamProperties.getKey(), recordId, event.trxId());
 
-        } catch (JsonProcessingException e){
-            throw new IllegalStateException("Failed to serialize Redis Stream payload", e);
         } catch (Exception e){
             throw new RuntimeException("Failed to publish Redis Stream", e);
         }
+    }
+
+    private @NonNull MapRecord<String, String, String> getEntries(TransactionChangedEvent event) {
+        Map<String, String> redisFields = Map.of(
+                "trxId", event.trxId(),
+                "eventType", event.eventType(),
+                "userId", event.userId(),
+                "categoryName", event.categoryName(),
+                "transactionType", event.transactionType(),
+                "amount", event.amount().toPlainString(),
+                "description", event.description(),
+                "transactionDate", event.transactionDate().toString(),
+                "paymentMethod", event.paymentMethod(),
+                "source", event.source()
+        );
+
+        MapRecord<String, String, String> record = MapRecord.create(
+                redisStreamProperties.getKey(),
+                redisFields
+        );
+        return record;
     }
 }
