@@ -1,5 +1,7 @@
 package com.nexstudio.expensetracker_be.service.impl;
 
+import com.nexstudio.expensetracker_be.constants.Constants;
+import com.nexstudio.expensetracker_be.dto.event.TransactionChangedEvent;
 import com.nexstudio.expensetracker_be.dto.request.TransactionRequest;
 import com.nexstudio.expensetracker_be.dto.response.TransactionResponse;
 import com.nexstudio.expensetracker_be.entity.TransactionEntity;
@@ -7,14 +9,17 @@ import com.nexstudio.expensetracker_be.entity.UserEntity;
 import com.nexstudio.expensetracker_be.repository.main.CategoryRepository;
 import com.nexstudio.expensetracker_be.repository.main.TransactionRepository;
 import com.nexstudio.expensetracker_be.repository.main.UserRepository;
+import com.nexstudio.expensetracker_be.repository.main.projection.CategoryDataProjection;
 import com.nexstudio.expensetracker_be.service.TransactionService;
 import com.nexstudio.expensetracker_be.util.ValidationUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
@@ -26,6 +31,7 @@ public class TransactionServiceImpl implements TransactionService {
     private final TransactionRepository transactionRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Override
     public TransactionResponse saveTransaction(TransactionRequest request) {
@@ -38,15 +44,16 @@ public class TransactionServiceImpl implements TransactionService {
             throw new IllegalArgumentException("usr.error.001");
         }
 
-        String categoryId = categoryRepository.getCategoryIdByCode(request.getCategoryCode());
-        if (categoryId == null) {
+        CategoryDataProjection categoryData = categoryRepository.getCategoryDataByCode(request.getCategoryCode());
+        if (categoryData == null) {
             log.error("Category not found!");
             throw new IllegalArgumentException("cat.error.001");
         }
 
         TransactionEntity transaction = TransactionEntity.builder()
                 .userId(user.getId())
-                .categoryId(categoryId)
+                .categoryCode(request.getCategoryCode())
+                .transactionType(categoryData.getType())
                 .amount(request.getAmount())
                 .description(request.getDescription())
                 .transactionDate(transactionDate)
@@ -57,10 +64,26 @@ public class TransactionServiceImpl implements TransactionService {
         String transactionId = transactionRepository.saveTransaction(transaction);
         log.info("Transaction successfully created with id {}", transactionId);
 
+        log.info("Continue publish event for Redis Stream Asynchronus");
+
+        applicationEventPublisher.publishEvent(
+                new TransactionChangedEvent(
+                        Constants.TRX_CREATED,
+                        user.getId(),
+                        categoryData.getName(),
+                        categoryData.getType(),
+                        request.getAmount(),
+                        request.getDescription(),
+                        transactionDate.toLocalDate(),
+                        request.getPaymentMethod().name(),
+                        request.getSource().name()
+                )
+        );
+
         return TransactionResponse.builder()
                 .username(user.getUsername())
                 .name(user.getName())
-                .category(request.getCategoryCode())
+                .category(categoryData.getName())
                 .amount(request.getAmount())
                 .description(request.getDescription())
                 .transactionDate(transactionDate)
@@ -74,7 +97,7 @@ public class TransactionServiceImpl implements TransactionService {
 
         try {
             LocalDate parsedDate = LocalDate.parse(trxDate, formatter);
-            return parsedDate.atTime(23, 59, 29);
+            return parsedDate.atTime(LocalTime.now());
         } catch (DateTimeParseException exception) {
             log.error("Failed to parse date : {}", trxDate);
             throw new IllegalArgumentException("Failed parse date!", exception);

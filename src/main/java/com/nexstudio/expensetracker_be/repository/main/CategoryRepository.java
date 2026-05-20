@@ -1,5 +1,7 @@
 package com.nexstudio.expensetracker_be.repository.main;
 
+import com.nexstudio.expensetracker_be.repository.main.projection.CategoryDataProjection;
+
 public interface CategoryRepository {
-    String getCategoryIdByCode(String categoryCode);
+    CategoryDataProjection getCategoryDataByCode(String categoryCode);
 }

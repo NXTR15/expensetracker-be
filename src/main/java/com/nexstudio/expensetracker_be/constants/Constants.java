@@ -8,4 +8,6 @@ public class Constants {
     public static final String RAW_EMAIL_TABLE =  "transactiontracker.tracker_raw_email ";
     public static final String CATEGORY_TABLE = "transactiontracker.tracker_category ";
     public static final String VALUES_SQL = " VALUES ";
+    public static final String TRX_CREATED = "TRANSACTION_CREATED";
+    public static final String TRX_UPDATED = "TRANSACTION_UPDATED";
 }

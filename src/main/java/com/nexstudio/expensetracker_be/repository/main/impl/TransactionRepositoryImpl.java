@@ -25,17 +25,18 @@ public class TransactionRepositoryImpl implements TransactionRepository {
         String id = UUID.randomUUID().toString().replace("-", "");
 
         String sql = "INSERT INTO " + Constants.TRANSACTION_TABLE +
-                "(id, user_id, category_id, amount, description, transaction_date, payment_method, source, created_at, updated_at)"
+                "(id, user_id, category_code, amount, description, transaction_date, payment_method, source, transaction_type, created_at, updated_at)"
                 + Constants.VALUES_SQL +
-                "(:id, :user_id, :category_id, :amount, :description, :transaction_date, :payment_method, :source, :created_at, :updated_at)";
+                "(:id, :user_id, :category_code, :amount, :description, :transaction_date, :payment_method, :source, :transaction_type, :created_at, :updated_at)";
 
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("id", id)
                 .addValue("user_id", entity.getUserId())
-                .addValue("category_id", entity.getCategoryId())
+                .addValue("category_code", entity.getCategoryCode())
                 .addValue("amount", entity.getAmount())
                 .addValue("description", entity.getDescription())
                 .addValue("transaction_date", entity.getTransactionDate())
+                .addValue("transaction_type", entity.getTransactionType())
                 .addValue("payment_method", entity.getPaymentMethod())
                 .addValue("source", entity.getSource())
                 .addValue("created_at", now)
